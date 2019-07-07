@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text} from 'react-native';
+import { StyleSheet, View, Text, MapView} from 'react-native';
 import { Button, Input } from 'react-native-elements';
-import { MapView, Permissions } from 'expo'
+import * as Permissions from 'expo-permission'
 
 export default class Home extends React.Component {
 
@@ -60,7 +60,7 @@ export default class Home extends React.Component {
                         placeholder='type here..'
                     />
                 </View>
-                <View>
+                <View style={{height: 500}}>
                     {latitude ? 
                         <MapView
                             style={{flex: 1}}
