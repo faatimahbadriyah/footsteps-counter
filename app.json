@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "footsteps-counter",
-    "slug": "footsteps-counter",
+    "name": "fscounter",
+    "slug": "fscounter",
     "privacy": "public",
     "sdkVersion": "33.0.0",
     "platforms": [
@@ -25,6 +25,9 @@
     ],
     "ios": {
       "supportsTablet": true
+    },    
+    "android": {
+      "package": "com.futech.apps"
     }
   }
 }

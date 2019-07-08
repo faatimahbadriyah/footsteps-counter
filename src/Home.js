@@ -1,93 +1,173 @@
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, { Component } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import MapView from 'react-native-maps';
+import axios from 'axios';
+import { Actions} from 'react-native-router-flux';
 import { Button, Input } from 'react-native-elements';
-import Maps from './Maps';
+import * as Permissions from 'expo-permissions';
 
-export default class Home extends React.Component {
-
+export default class MapScreen extends Component {
     static navigationOptions={
         header: null
     }
+  constructor(props) {
+    super(props);
+    this.state = {
+      locationInput: '',
+      locationCoordinates: {
+          latitude: null,
+          longitude: null,
+        }
+    };
+  }
 
-    static navigationOptions={
-        header: null
+  onSignOut = () =>{
+    this.props.navigation.navigate('Login')
+  }
+
+  async componentDidMount() {
+    const {status} = await Permissions.getAsync(Permissions.LOCATION)
+
+    if( status != 'granted'){
+        const response = await Permissions.askAsync(Permissions.LOCATION)
     }
 
-    constructor(props){
-        super(props);
-        this.state = {
-           
-        };
-    }
+    navigator.geolocation.getCurrentPosition(
+        ({coords: {latitude, longitude}})=>this.setState({latitude, longitude}, () => console.log('State : ', this.state)),
+        (error) => console.log('Error : ', error)
+    )
+  }
 
-    render(){
-        console.log(this.state)
-        return (
-            <View style={styles.container}>
-                <View style={{marginTop: 50}}>
-                    <Input
-                        value = {this.state.asal}
-                        onChangeText={asal => this.setState({asal})}
-                        label='Asal:'
-                        inputContainerStyle={styles.input}
-                        labelStyle={styles.label}
-                        inputStyle={{paddingLeft: 10}}
-                        placeholder='type here..'
-                    />
-                    <Input
-                        value = {this.state.tujuan}
-                        onChangeText={tujuan => this.setState({tujuan})}
-                        label='Tujuan:'
-                        inputContainerStyle={styles.input}
-                        labelStyle={styles.label}
-                        inputStyle={{paddingLeft: 10}}
-                        placeholder='type here..'
-                    />
-                </View>
-                <View style={{height: 500}}>
-                    <Maps />
-                </View>
-                <View style={styles.viewBottom}>
-                    <Button 
-                        title='Logout'
-                        buttonStyle={styles.btn}/>
-                </View>
-            </View>
-        );
-    }
+  render() {
+    const {latitude, longitude} = this.state;
+    return (
+      <View style={styles.overallViewContainer}>
+        {this.state.latitude &&    
+            <MapView
+                style={ styles.container }
+                initialRegion={{
+                    latitude,
+                    longitude,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421
+                }} 
+            >
+                <MapView.Marker 
+                  coordinate={{
+                    latitude,
+                    longitude,
+                  }}
+                />
+            </MapView>
+        }
+        <View style={styles.allNonMapThings}>
+          <View style={styles.inputContainer}>
+             <Input
+                value = {this.state.asal}
+                onChangeText={asal => this.setState({asal})}
+                inputContainerStyle={styles.input}
+                inputStyle={{paddingLeft: 10}}
+                placeholder='Asal'
+            />
+            <Input
+                value = {this.state.tujuan}
+                onChangeText={tujuan => this.setState({tujuan})}
+                inputContainerStyle={[styles.input,{marginTop: 5}]}
+                inputStyle={{paddingLeft: 10}}
+                placeholder='Tujuan'
+            />
+          </View>
+
+          <View style={[styles.inputContainer,{marginTop: 5}]}>
+            <Text style={styles.text}>Jarak: 2 KM</Text>
+            <Text style={styles.text}>Jumlah langkah kaki: 2000</Text>
+          </View>
+
+          <View style={styles.button} >
+            <TouchableOpacity 
+              onPress={this.onSignOut}
+            > 
+              <Text style = {styles.buttonText} >
+                Logout 
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    input:{
-        width: 250,
-        marginTop: 5,
-        borderColor:'#68035d',
-        borderWidth: 1,
-        borderRadius: 20
-    }, 
-    label:{
-        marginTop: 10, 
-        fontStyle:'italic', 
-        marginLeft: 10
-    },   
-    viewBottom: {
-        flexDirection:'row',
-        alignItems: 'center',
-        justifyContent: 'center', 
-        position: 'absolute', 
-        bottom: 0, 
-        zIndex: 1,
-    },
-    btn:{
-        backgroundColor: '#68035d', 
-        marginBottom: 10,
-        borderRadius: 20,
-        width: 250,
-    }
+  overallViewContainer: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+  },
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  },
+  input: {
+    borderColor:'#68035d',
+    borderWidth: 1,
+  },
+  allNonMapThings: {
+    alignItems: 'center',
+    height: '100%',
+    width: '100%'
+  },
+  inputContainer: {
+    elevation: 1,
+    backgroundColor: 'white',
+    width: '90%',
+    top: 40,
+    padding: 10,
+    shadowOpacity: 0.75,
+    borderRadius: 20,
+    shadowRadius: 1,
+    shadowColor: 'gray',
+    shadowOffset: { height: 0, width: 0}
+  },
+  button: {
+    elevation: 1,
+    position: 'absolute',
+    bottom: 25,
+    backgroundColor: '#68035d',
+    borderRadius: 25,
+    width: '90%',
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOpacity: 0.75,
+    shadowRadius: 1,
+    shadowColor: 'gray',
+    shadowOffset: { height: 0, width: 0}
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18
+  },
+  wrapper: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  },
+  text:{
+    paddingLeft: 10,
+    paddingTop: 5
+  }
 });

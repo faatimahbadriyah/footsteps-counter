@@ -53,7 +53,7 @@ export default class Login extends React.Component {
         .then(() => {
             this.setState({error:'', loading:false});
             this.props.navigation.navigate('Main');
-            alert('Berhasil, silahkan login.')
+            alert('Pendaftaran berhasil, silahkan login.')
         })
         .catch(() => {
             this.setState({error:'Sign Up Failed', loading:false});
