@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, MapView} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import { Button, Input } from 'react-native-elements';
-import * as Permissions from 'expo-permission'
+import Maps from './Maps';
 
 export default class Home extends React.Component {
 
@@ -16,31 +16,15 @@ export default class Home extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            tujuan:'', 
-            asal:'', 
-            latitude: null,
-            longitude: null
+           
         };
     }
 
-    async componentDidMount() {
-        const {status} = await Permissions.getAsync(Permissions.LOCATION)
-
-        if( status != 'granted'){
-            const response = await Permissions.askAsync(Permissions.LOCATION)
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            ({coords: {latitude, longitude}})=>this.setState({latitude, longitude}, () => console.log('State : ', this.state)),
-            (error) => console.log('Error : ', error)
-        )
-    }
-
     render(){
-        const {latitude, longitude} = this.state
+        console.log(this.state)
         return (
             <View style={styles.container}>
-                <View>
+                <View style={{marginTop: 50}}>
                     <Input
                         value = {this.state.asal}
                         onChangeText={asal => this.setState({asal})}
@@ -61,21 +45,7 @@ export default class Home extends React.Component {
                     />
                 </View>
                 <View style={{height: 500}}>
-                    {latitude ? 
-                        <MapView
-                            style={{flex: 1}}
-                            initialRegion={{
-                                latitude,
-                                longitude,
-                                latitudeDelta: 0.0922,
-                                longitudeDelta: 0.0421
-                            }}
-                        >
-
-                        </MapView>
-                        :
-                        <Text>Need Permission</Text>
-                    }
+                    <Maps />
                 </View>
                 <View style={styles.viewBottom}>
                     <Button 
