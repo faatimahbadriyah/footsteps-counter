@@ -3,26 +3,27 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import MapView from 'react-native-maps';
 import axios from 'axios';
-import { Actions} from 'react-native-router-flux';
 import { Button, Input } from 'react-native-elements';
 import * as Permissions from 'expo-permissions';
+import { getDistance } from 'geolib';
+import Geocoder from 'react-native-geocoder';
 
 export default class MapScreen extends Component {
     static navigationOptions={
-        header: null
+      header: null
     }
   constructor(props) {
     super(props);
     this.state = {
-      locationInput: '',
-      locationCoordinates: {
-          latitude: null,
-          longitude: null,
-        }
+      latitude: null,
+      longitude: null,
+      latTarget: null,
+      longTarget: null,
+      jarak: 0
     };
   }
 
@@ -43,11 +44,23 @@ export default class MapScreen extends Component {
     )
   }
 
-  render() {
+  calculateDistance(){
     const {latitude, longitude} = this.state;
+    this.setState({
+      jarak: getDistance(
+        { latitude: latitude, longitude: longitude },
+        { latitude: -6.931249, longitude: 107.717682 }
+      )
+    })
+
+  }
+
+  render() {
+    const {latitude, longitude, jarak} = this.state;    
+
     return (
       <View style={styles.overallViewContainer}>
-        {this.state.latitude &&    
+        {this.state.latitude ?
             <MapView
                 style={ styles.container }
                 initialRegion={{
@@ -64,6 +77,10 @@ export default class MapScreen extends Component {
                   }}
                 />
             </MapView>
+            :
+            <View style={{justifyContent:'center', alignItems:'center'}}>
+              <Text>Memuat peta ...</Text>
+            </View>
         }
         <View style={styles.allNonMapThings}>
           <View style={styles.inputContainer}>
@@ -81,12 +98,17 @@ export default class MapScreen extends Component {
                 inputStyle={{paddingLeft: 10}}
                 placeholder='Tujuan'
             />
+             <Button
+                onPress={this.calculateDistance.bind(this)} 
+                title= 'Calculate'
+                buttonStyle={styles.btn} />
           </View>
 
           <View style={[styles.inputContainer,{marginTop: 5}]}>
-            <Text style={styles.text}>Jarak: 2 KM</Text>
-            <Text style={styles.text}>Jumlah langkah kaki: 2000</Text>
+            <Text style={styles.text}>Jarak: {jarak/1000} KM</Text>
+            <Text style={styles.text}>Jumlah langkah kaki: {jarak}</Text>
           </View>
+
 
           <View style={styles.button} >
             <TouchableOpacity 
@@ -94,9 +116,9 @@ export default class MapScreen extends Component {
             > 
               <Text style = {styles.buttonText} >
                 Logout 
-              </Text>
+              </Text>           
             </TouchableOpacity>
-          </View>
+          </View> 
         </View>
       </View>
 
@@ -140,6 +162,11 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     shadowColor: 'gray',
     shadowOffset: { height: 0, width: 0}
+  },
+  btn:{
+    backgroundColor: '#68035d',
+    marginTop: 10,
+    borderRadius: 0
   },
   button: {
     elevation: 1,

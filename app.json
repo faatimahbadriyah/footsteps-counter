@@ -21,10 +21,16 @@
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
-      "**/*"
+      "assets/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.futech.apps",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.932813981415-jshj0q73oi52j2ukrgbllnq036obe9kj"
+        }
+      }
     },    
     "android": {
       "package": "com.futech.apps"
